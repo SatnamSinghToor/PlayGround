@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blinkit in 9 minutes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#1b1b1b;font-family:-apple-system,'Segoe UI',Roboto,system-ui,sans-serif;display:flex;justify-content:center;min-height:100vh}
+.phone{width:100%;max-width:430px;height:100vh;max-height:932px;background:#fdf9ef;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none}
+.phone::-webkit-scrollbar{display:none}
+
+/* Header area */
+.top{background:linear-gradient(175deg,#fbe3ae 0%,#f8d98f 45%,#f6d283 100%);padding-bottom:2px}
+.statusbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 2px}
+.statusRight{display:flex;align-items:center;gap:7px}
+.signalPill{background:#c4770f;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;display:flex;align-items:center;gap:2px}
+.head{padding:12px 20px 0}
+.blinkitIn{font-size:13px;color:#4a3b1e;font-weight:600;letter-spacing:.1px}
+.etd{display:flex;align-items:center;gap:10px;margin-top:2px;padding-right:100px;flex-wrap:nowrap}
+.etdTime{font-size:30px;font-weight:800;color:#453510;letter-spacing:-.5px;white-space:nowrap}
+.etaBadge{background:#cfe8b8;color:#3d7a2c;font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:16px;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.etaDot{width:14px;height:12px}
+.addr{margin-top:1px;font-size:14.5px;color:#6b5a33;line-height:1.35;max-width:290px}
+.addr b{color:#3c2f12;font-weight:700}
+.addr .car{font-size:10px;display:inline-block;margin-left:3px}
+.headIcons{position:absolute;top:30px;right:20px;display:flex;gap:10px}
+.iconCircle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.iconCircle.wallet{background:radial-gradient(circle at 30% 30%,#fdf3c9,#f3d178 70%);box-shadow:inset 0 0 0 1px rgba(180,140,40,.35)}
+.iconCircle.acct{background:#e8d394}
+.walletBal{position:absolute;bottom:-9px;background:#fdf6d8;border-radius:8px;font-size:10px;font-weight:700;color:#333;padding:2px 6px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+
+/* Search */
+.searchRow{display:flex;gap:10px;padding:16px 20px 4px}
+.searchBar{flex:1;background:#fff;border-radius:14px;display:flex;align-items:center;padding:15px 16px;gap:10px;box-shadow:0 1px 4px rgba(120,90,20,.10)}
+.searchBar input{border:none;outline:none;flex:1;font-size:16px;color:#333;font-weight:500;background:transparent}
+.searchBar input::placeholder{color:#5f5f5f;font-weight:500}
+.micBtn{width:58px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(120,90,20,.10)}
+
+/* Categories */
+.cats{display:flex;gap:22px;padding:14px 20px 12px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat.active:after{content:'';position:absolute;left:-12px;right:-4px;bottom:-3px;height:4px;background:#141414;border-radius:3px;z-index:1}
+/* --- liveliness additions --- */
+.searchRow{position:relative;z-index:20}
+@keyframes flick{0%,100%{transform:translateX(-50%) scaleY(1)}50%{transform:translateX(-50%) scaleY(1.3) scaleX(.85)}}
+.flame{animation:flick 1.4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.35}50%{opacity:.95}}
+.bannerArt .dia{animation:twinkle 2.6s ease-in-out infinite}
+.bannerArt .dia:nth-child(3n+2){animation-delay:.6s}
+.bannerArt .dia:nth-child(3n){animation-delay:1.2s}
+@keyframes pop{50%{transform:scale(1.45)}}
+.fav.on{animation:pop .3s ease}
+.pcard{transition:transform .2s,box-shadow .2s}
+.pcard:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(120,90,30,.18)}
+.bogoViewport{flex:1;overflow:hidden;border-radius:16px}
+.bogoSlider{display:flex;transition:transform .45s ease}
+.bogoSlide{min-width:100%;display:flex}
+.bogoSlide .bogoCard{flex:1}
+.bogoArrow{cursor:pointer;user-select:none}
+.bogoDots{display:flex;justify-content:center;gap:6px;padding:10px 0 0}
+.bogoDots i{width:7px;height:7px;border-radius:50%;background:#c99b3d;cursor:pointer;transition:background .2s}
+.bogoDots i.on{background:#7a5410}
+.suggest{position:absolute;top:calc(100% + 6px);left:20px;right:80px;background:#fff;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.22);overflow:hidden;display:none;z-index:30}
+.suggest .sItem{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-bottom:1px solid #f2f2f2}
+.suggest .sItem:last-child{border-bottom:none}
+.suggest .sItem:hover{background:#f6fbf6}
+.suggest .sEmoji{font-size:24px}
+.suggest .sName{flex:1}
+.suggest .sName b{display:block;font-size:14px;color:#1f1f1f}
+.suggest .sName small{color:#7a7a7a;font-size:11.5px}
+.suggest .sPlus{width:30px;height:30px;border-radius:9px;background:#178a3e;color:#fff;border:none;font-size:18px;font-weight:800;cursor:pointer}
+.suggest .sEmpty{padding:14px;color:#8a8a8a;font-size:13.5px}
+.cartCta{position:sticky;bottom:74px;margin:0 14px;background:#1d9a48;color:#fff;border-radius:13px;padding:10px 12px 10px 16px;display:none;justify-content:space-between;align-items:center;z-index:8;box-shadow:0 5px 14px rgba(20,90,30,.4)}
+.cartCta .cLeft b{font-size:14.5px}
+.cartCta .cLeft small{display:block;font-size:11px;opacity:.85}
+.cartCta .checkoutBtn{background:#fff;color:#178a3e;border:none;border-radius:10px;padding:10px 16px;font-weight:800;font-size:14px;cursor:pointer}
+.toastbar{position:fixed;left:50%;transform:translateX(-50%) translateY(14px);bottom:120px;background:#243024;color:#fff;font-size:13.5px;font-weight:600;padding:10px 18px;border-radius:24px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.toastbar.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.pimg.emoji{display:flex;align-items:center;justify-content:center}
+.pimg.emoji span{font-size:96px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18))}
+.pimg.emoji .dots i{background:rgba(60,40,0,.28)}
+.pimg.emoji .dots i.on{background:#4a3410}
+.pimg.emoji .fav{color:#6b581e;filter:none}
+.cat{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;flex-shrink:0;position:relative}
+.catIcon{font-size:30px;height:34px;display:flex;align-items:center;filter:grayscale(0)}
+.catLabel{font-size:13.5px;font-weight:600;color:#4a4025}
+.cat.active .catLabel{color:#1f1f1f;font-weight:700}
+.catBlock{width:100%;margin:6px 0 0;height:3.5px;border-radius:3px;position:relative;overflow:hidden}
+.catBlock .bar{position:absolute;width:72px;left:0;height:3.5px;background:#1f1f1f;border-radius:3px;transition:left .25s}
+/* Banner */
+.banner{background:linear-gradient(120deg,#f8d482,#f3c264 55%,#f6cf7c);padding:22px 26px 30px;position:relative}
+.bannerArt{display:flex;align-items:flex-start;justify-content:space-between}
+.celebrate{letter-spacing:8px;font-size:20px;color:#8f1d2c;font-weight:600}
+.karwa{font-family:Georgia,'Times New Roman',serif;font-size:42px;font-weight:800;color:#9c1832;font-style:italic;letter-spacing:0;margin-top:2px;text-shadow:1px 1px 0 #c5541e;white-space:nowrap}
+.rangoli{position:relative;width:190px;height:110px}
+.dia{position:absolute;background:radial-gradient(circle,#ffc23d 40%,#e88b1a 90%);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);width:10px;height:10px;opacity:.85}
+.diya{position:absolute;right:20px;bottom:14px;width:80px;height:50px}
+.diyaBowl{position:absolute;bottom:0;width:80px;height:28px;background:radial-gradient(circle at 50% -30%,#a91756,#7c0f40 75%);border-radius:0 0 44px 44px/0 0 28px 28px}
+.diyaBowl:before{content:'';position:absolute;top:0;left:0;right:0;height:8px;border-radius:50%;background:#c2417f}
+.flame{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:24px;height:24px;background:radial-gradient(circle at 50% 75%,#ffd54d,#f59a12 70%);clip-path:polygon(50% 0,88% 65%,50% 100%,12% 65%)}
+
+/* Category cards */
+.catCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0 20px}
+.ccard{background:linear-gradient(160deg,#a01833,#7d0f28 75%);border-radius:14px;padding:12px 8px 0;text-align:center;color:#ffe9b0;box-shadow:0 2px 6px rgba(90,10,30,.25);cursor:pointer}
+.ccard h3{font-size:14.5px;font-weight:700;line-height:1.25}
+.ccardArt{height:86px;margin-top:8px;display:flex;align-items:flex-end;justify-content:space-evenly;gap:3px;overflow:hidden;width:100%}
+.ccA1{display:flex;flex-direction:column;align-items:flex-end;width:100%}
+.thali{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f8d98a,c9a04a 0,#8a5d16 85%);box-shadow:inset 0 0 0 4px #f0cd77,inset 0 0 0 7px #b78a2c;margin-right:6px}
+.sindoor{width:26px;height:22px;background:radial-gradient(circle at 40% 30%,#f04a3f,#a21212);border-radius:5px 5px 9px 9px;position:relative;margin-top:-8px}
+.sindoor:after{content:'';position:absolute;top:-7px;left:7px;width:12px;height:9px;background:#7c0d0d;border-radius:50% 50% 4px 4px}
+.ccA2{align-items:flex-start;gap:4px;padding-left:8px}
+.pen{width:7px;height:64px;background:linear-gradient(#eee,#bbb);border-radius:3px}
+.tube{width:18px;height:56px;background:linear-gradient(90deg,#1d7a35,#35a24f);border-radius:5px 5px 3px 3px}
+.tube:before{content:'N';color:#ffe9b0;font-size:8px;font-weight:700;display:block;padding:8px 0 0 5px}
+.lip{width:9px;height:46px;background:linear-gradient(#d8b06a 28%,#e0321f 28%);border-radius:4px}
+.ccA3{align-items:flex-end;gap:5px;padding-left:4px}
+.flowers{position:relative;width:26px;height:54px;background:radial-gradient(circle at 30% 25%,#f04a5e,#a80f2c 75%);border-radius:50% 50% 40% 40%}
+.perf1{width:20px;height:44px;background:linear-gradient(120deg,#f6e3ef,#dca8c6);border-radius:6px;position:relative}
+.perf1:before{content:'';position:absolute;top:-8px;left:6px;width:8px;height:10px;background:#e8c9dd;border-radius:2px}
+.perf2{width:16px;height:36px;background:linear-gradient(120deg,#f8b4d0,#e06aa2);border-radius:5px}
+.gift{width:26px;height:22px;background:#8a5b22;border-radius:3px}
+.ccA4{align-items:center;gap:4px}
+.tray{width:44px;height:26px;background:linear-gradient(#fdfaf3,#d9cdb4);border-radius:4px 4px 12px 12px;transform:rotate(-8deg)}
+.drypack{width:26px;height:44px;background:linear-gradient(90deg,#2e8b3d,#4db56a);border-radius:4px 6px 4px 2px}
+
+/* BOGO carousel */
+.bogo{background:linear-gradient(120deg,#f6cc79,#f2c266 60%,#f5cd77);padding:20px 0 26px}
+.bogoTrack{display:flex;align-items:center;gap:12px;padding:0 12px}
+.bogoArrow{width:56px;height:48px;background:#fde8ae;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#a5762b}
+.bogoCard{flex:1;background:#fffdf6;border:2px solid #e8b64d;border-radius:16px;display:flex;align-items:center;padding:8px 14px;gap:12px;box-shadow:0 2px 5px rgba(150,100,20,.15)}
+.bogoFace{width:46px;height:46px;border-radius:8px;overflow:hidden;background:#fdeedd;display:flex;align-items:center;justify-content:center;font-size:30px}
+.bogoText{flex:1}
+.bogoText b{display:block;font-size:16.5px;color:#1f1f1f;font-weight:800}
+.bogoText span{font-size:13px;color:#4a4a4a}
+.chev{color:#b98a1e;font-weight:800}
+.bogoBadge{width:46px;height:46px;background:radial-gradient(circle,#f9d97a,#e5a923);clip-path:path('M23 0c3 0 5 4 8 5s8-1 10 1 0 7 1 10 5 5 5 8-4 5-5 8 1 8-1 10-7 0-10 1-5 5-8 5-5-4-8-5-8 1-10-1 0-7-1-10-5-5-5-8 4-5 5-8-1-8 1-10 7 0 10-1 5-5 8-5z');background:radial-gradient(circle,#f9d97a,#e5a923);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#8a5a00;font-size:20px;font-weight:800}
+
+/* Festive specials wave */
+.wave{background:linear-gradient(120deg,#f5cb74,#f1c162 60%,#f4ca70);padding-bottom:0;position:relative;height:34px}
+.wave:after{content:'';position:absolute;inset:8px 0 0;background:#fcecd2;border-radius:50% 50% 0 0/100% 100% 0 0}
+.waveDeco{position:absolute;bottom:-2px;left:0;right:0;height:26px;background:#fcecd2;border-radius:50% 50% 0 0/22px 22px 0 0;z-index:1}
+.festHead{background:#fcecd2;text-align:center;padding:6px 0 2px;font-size:21px;font-weight:800;letter-spacing:4px;color:#a63a4c;position:relative}
+.festHead .di{color:#e5a91f;letter-spacing:0}
+
+/* Specials tabs */
+.tabs{background:#fcecd2;display:flex;gap:12px;padding:14px 14px 18px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:10px;background:#fdf3dc;border-radius:20px;padding:10px 18px 10px 10px;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.tab .tIcon{width:40px;height:40px;border-radius:50%;background:#f3e2b8;display:flex;align-items:center;justify-content:center;font-size:20px}
+.tab .tIcon.medal{background:#faf5e6;font-size:24px}
+.tab span{font-size:14.5px;font-weight:700;color:#4a4025;line-height:1.2}
+.tab.active{background:#fdf6e7;border-color:#c9b998;border-radius:24px 24px 8px 8px;border-bottom:none;box-shadow:0 -1px 4px rgba(120,90,20,.06)}
+
+/* Product grid */
+.grid{background:#fdf6e7;display:flex;gap:12px;padding:6px 14px 24px;overflow-x:auto;scrollbar-width:none}
+.grid::-webkit-scrollbar{display:none}
+.pcard{width:230px;flex-shrink:0;background:#fdf9ef;border-radius:14px;padding:8px;display:flex;flex-direction:column;box-shadow:0 1px 5px rgba(120,90,30,.12)}
+.pimg{position:relative;height:230px;border-radius:10px;overflow:hidden}
+.fav{position:absolute;top:9px;right:10px;color:rgba(255,255,255,.95);width:24px;height:24px;cursor:pointer;z-index:2;transition:transform .15s;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.fav svg{display:block;width:22px;height:22px}
+.fav.on{color:#ff4d6d;animation:pop .3s ease}
+.fav.on svg path{fill:currentColor}
+.topRated{position:absolute;top:0;left:0;background:#fdf3cf;color:#5a4a10;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:0 0 10px 0;z-index:2}
+.freeBadge{position:absolute;top:8px;left:8px;width:34px;height:34px;background:#f5d020;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#7a5a00;z-index:2;line-height:1}
+.freeBadge b{font-size:13px}
+.adTag{position:absolute;bottom:8px;right:8px;background:rgba(120,120,120,.75);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:5px;z-index:2}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:2}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
+.dots i.on{background:#fff}
+/* CSS artworks */
+.artWreath{width:100%;height:100%;background:radial-gradient(circle at 50% 45%,#8a8a8a,#5f5f5f);position:relative;display:flex;align-items:center;justify-content:center}
+.wreathRing{width:120px;height:120px;border-radius:50%;position:relative}
+.wreathRing i{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 40% 35%,#ffffff,#d9d9d9);border-radius:50% 0 50% 55%}
+.artMehendi{width:100%;height:100%;background:linear-gradient(160deg,#c99a63,#8f5f2e);position:relative}
+.henna{position:absolute;top:34px;width:64px;height:56px;background:radial-gradient(circle,#b06a2e 0%,transparent 70%);border-radius:50%}
+.hand{position:absolute;bottom:0;width:90px;height:130px;background:linear-gradient(#d3a877,#c09360);border-radius:60px 60px 20px 20px}
+.mandala{position:absolute;width:74px;height:74px;border-radius:50%;background:radial-gradient(circle,#8f4a1a 3px,transparent 4px),radial-gradient(circle,transparent 14px,#8f4a1a 16px,transparent 18px),radial-gradient(circle,transparent 25px,#8f4a1a 27px,transparent 29px),#b33136;border-radius:50%}
+.artPink{width:100%;height:100%;background:linear-gradient(160deg,#f8e8ee,#eccfd9)}
+.pinkBox{position:absolute;left:26px;bottom:0;width:60%;height:110px;background:linear-gradient(#fbeef2,#f3dbe5);border-radius:6px;border:1px solid #e3c3d1;transform:rotate(-4deg);transform-origin:bottom left}
+.pinkBox .lips{position:absolute;inset:12px;background:linear-gradient(120deg,#b82745,#8f1129);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.pinkBox .lips b{color:#f2e3d3;font-size:13px;letter-spacing:1px;font-style:italic}
+.pinkBox .lips span{color:#d8b8a0;font-size:7px;letter-spacing:2px}
+.stick{position:absolute;width:9px;height:120px;background:linear-gradient(#e8e2d8 30%,#d0303a 30%);border-radius:4px;right:70px;bottom:0}
+.stick2{right:56px;height:90px;background:linear-gradient(#f4e28a,#d0303a)}
+.glitter{position:absolute;bottom:0;right:0;width:70px;height:100%;background:linear-gradient(#f6d4e0,#ef9ec0)}
+.artBokeh{width:100%;height:100%;background:radial-gradient(circle at 30% 30%,#7a1524,#4d0813 70%)}
+.artBokeh:after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 60%,rgba(255,190,80,.5) 0 12px,transparent 14px),radial-gradient(circle at 25% 70%,rgba(255,160,60,.35) 0 9px,transparent 11px),radial-gradient(circle at 55% 25%,rgba(255,210,110,.25) 0 16px,transparent 18px),radial-gradient(circle at 85% 30%,rgba(255,170,70,.3) 0 8px,transparent 10px)}
+
+.pbar{display:flex;align-items:center;gap:8px;padding:10px 2px 2px}
+.pbar span{font-size:14.5px;color:#3a3a3a;font-weight:600;flex:1}
+.addBtn{min-width:64px;background:#fdf9ef;border:1.6px solid #178a3e;color:#178a3e;font-size:14.5px;font-weight:800;padding:9px 14px;border-radius:10px;cursor:pointer;transition:all .15s}
+.addBtn:hover{background:#eef8f0}
+.qtyBox{min-width:64px;background:#178a3e;color:#fff;font-size:14.5px;font-weight:800;padding:9px 8px;border-radius:10px;display:none;align-items:center;justify-content:space-between}
+.qtyBox button{background:none;border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;padding:0 4px}
+
+/* Bottom nav */
+.nav{position:sticky;bottom:0;background:#fdf9ef;display:flex;align-items:center;padding:10px 22px 18px;gap:8px;box-shadow:0 -6px 16px rgba(120,90,30,.08);z-index:5}
+.nitem{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#4c4c4c;flex:1;cursor:pointer;font-weight:600;white-space:nowrap}
+.nitem.on{color:#1f1f1f}
+.nitem.on{font-weight:800}
+.zomato{flex:1.1;display:flex;justify-content:flex-end}
+.zomatoBtn{background:#e23744;color:#fff;font-size:16.5px;font-weight:800;font-style:italic;border-radius:10px;padding:12px 22px;cursor:pointer;border:none;letter-spacing:.3px}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="top">
+    <div class="statusbar">
+      <div style="display:flex;align-items:center;gap:9px;font-weight:700;color:#1f1f1f;font-size:14px">
+        <span>2:47</span>
+        <span style="color:#35c759">✆</span>
+        <span style="color:#5aa7e8">🕊</span>
+        <span style="color:#c0392b">📋</span>
+        <span style="color:#e67e22">☕</span>
+        <span style="color:#555">⠿⠿</span>
+        <span style="color:#444">●</span>
+      </div>
+      <div class="statusRight">
+        <span style="color:#2f6fd0;font-size:15px">📶</span>
+        <span style="color:#444">✈</span>
+        <span class="signalPill">▐▐<span style="font-size:9px">»</span>56</span>
+      </div>
+    </div>
+    <div class="head" style="position:relative">
+      <div class="blinkitIn">Blinkit in</div>
+      <div class="etd">
+        <span class="etdTime">9 minutes</span>
+        <span class="etaBadge"><svg class="etaDot" viewBox="0 0 14 12"><rect x="0" y="4" width="10" height="6" rx="1.5" fill="#3d7a2c"/><circle cx="3" cy="11" r="1.6" fill="#3d7a2c"/><circle cx="8" cy="11" r="1.6" fill="#3d7a2c"/></svg>660 m away</span>
+      </div>
+      <div class="addr"><b>HOME</b> - hdsyy uuure, Hisar Railway <span class="car">▼</span></div>
+      <div class="headIcons">
+        <div class="iconCircle wallet">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h13a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7z" fill="#f0c53d" stroke="#b98a14" stroke-width="1.4"/><rect x="15" y="11" width="7" height="6" rx="2" fill="#fdf3c9" stroke="#b98a14" stroke-width="1.3"/><circle cx="18.4" cy="14" r="1.2" fill="#b98a14"/></svg>
+          <span class="walletBal">₹0</span>
+        </div>
+        <div class="iconCircle acct">
+          <svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="9" r="4.4" fill="#6b5a33"/><path d="M4 22c1.4-5 5-6.6 9-6.6s7.6 1.6 9 6.6" fill="#6b5a33"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="searchRow">
+      <div class="searchBar">
+        <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="#333" stroke-width="1.8"/><path d="M13 13l5 5" stroke="#333" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input placeholder='Search "stationery"' id="searchInput">
+      </div>
+      <div class="micBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24"><g stroke="#1f1f1f" stroke-width="2" stroke-linecap="round"><line x1="4" x2="4" y1="10" y2="14"/><line x1="8" x2="8" y1="7" y2="17"/><line x1="12" x2="12" y1="4" y2="20"/><line x1="16" x2="16" y1="7" y2="17"/><line x1="20" x2="20" y1="10" y2="14"/></g></svg>
+      </div>
+    </div>
+    <div class="suggest" id="suggest"></div>
+    <div class="cats" id="cats">
+      <div class="cat active"><div class="catIcon">🛒</div><div class="catLabel">All</div></div>
+      <div class="cat"><div class="catIcon">🪔</div><div class="catLabel">Diwali</div></div>
+      <div class="cat"><div class="catIcon">♠</div><div class="catLabel">Party</div></div>
+      <div class="cat"><div class="catIcon">🎧</div><div class="catLabel">Electronics</div></div>
+      <div class="cat"><div class="catIcon">💄</div><div class="catLabel">Beauty</div></div>
+      <div class="cat"><div class="catIcon">🎁</div><div class="catLabel">Gifting</div></div>
+    </div>
+  </div>
+
+  <div class="banner">
+    <div class="bannerArt">
+      <div>
+        <div class="celebrate">CELEBRATE</div>
+        <div class="karwa">Karwa Chauth</div>
+      </div>
+      <div class="rangoli">
+        <span class="dia" style="top:8px;left:2px"></span>
+        <span class="dia" style="top:0;left:26px;opacity:.6"></span>
+        <span class="dia" style="top:12px;left:44px;opacity:.8"></span>
+        <span class="dia" style="top:2px;left:66px;opacity:.5"></span>
+        <span class="dia" style="top:16px;left:88px;opacity:.7"></span>
+        <span class="dia" style="top:6px;left:112px;opacity:.6"></span>
+        <span class="dia" style="top:20px;left:134px;opacity:.8"></span>
+        <span class="dia" style="top:10px;left:4px;width:7px;height:7px"></span>
+        <span class="dia" style="top:24px;left:0;opacity:.5"></span>
+        <div class="diya">
+          <div class="flame"></div>
+          <div class="diyaBowl"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(120deg,#f8d482,#f3c264)">
+    <div class="catCards">
+      <div class="ccard">
+        <h3>Sargi &amp;<br>Pooja Needs</h3>
+        <div class="ccardArt"><div class="thali"></div><div class="sindoor"></div></div>
+      </div>
+      <div class="ccard">
+        <h3>Festive<br>Ready</h3>
+        <div class="ccardArt ccA2"><div class="pen"></div><div class="tube"></div><div class="lip"></div></div>
+      </div>
+      <div class="ccard">
+        <h3>Gifting<br>Corner</h3>
+        <div class="ccardArt ccA3"><div class="flowers"></div><div class="perf1"></div><div class="perf2"></div><div class="gift"></div></div>
+      </div>
+      <div class="ccard">
+        <h3>Dry Fruits<br>&amp; Sweets</h3>
+        <div class="ccardArt ccA4"><div class="tray"></div><div class="drypack"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bogo">
+    <div class="bogoTrack">
+      <div class="bogoArrow" id="bogoPrev">›</div>
+      <div class="bogoViewport">
+        <div class="bogoSlider" id="bogoSlider">
+          <div class="bogoSlide">
+            <div class="bogoCard">
+              <div class="bogoFace">🧖‍♀️</div>
+              <div class="bogoText"><b>BUY 1 GET 1 FREE</b><span>On Sheet Masks</span></div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+          <div class="bogoSlide">
+            <div class="bogoCard">
+              <div class="bogoFace">🍬</div>
+              <div class="bogoText"><b>FESTIVE 20% OFF</b><span>On Sweets &amp; Snacks</span></div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+          <div class="bogoSlide">
+            <div class="bogoCard">
+              <div class="bogoFace">🦚</div>
+              <div class="bogoText"><b>FREE DELIVERY</b><span>Above ₹499 · Code FESTIVE</span></div>
+              <div class="chev">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bogoBadge">%</div>
+    </div>
+    <div class="bogoDots" id="bogoDots"><i class="on"></i><i></i><i></i></div>
+  </div>
+
+  <div class="wave"><div class="waveDeco"></div></div>
+  <div class="festHead"><span class="di">◆◇</span> FESTIVE SPECIALS <span class="di">◇◆</span></div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active">
+      <div class="tIcon medal">🏅</div>
+      <span>Top Picks</span>
+    </div>
+    <div class="tab">
+      <div class="tIcon">🌿</div>
+      <span>DIY<br>Mehendi</span>
+    </div>
+    <div class="tab">
+      <div class="tIcon">🎨</div>
+      <span>Indulgent<br>Gifts</span>
+    </div>
+    <div class="tab">
+      <div class="tIcon" style="background:#fbe9d8">🏷️</div>
+      <span>₹99<br>Store</span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="cartCta" id="cartCta">
+    <div class="cLeft"><b id="cartCount">0 items</b><small id="cartSub">Total ₹0</small></div>
+    <button class="checkoutBtn" onclick="checkout()">Checkout ›</button>
+  </div>
+  <div class="toastbar" id="toastbar"></div>
+
+  <div class="nav">
+    <div class="nitem on">
+      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M3 12l10-9 10 9v11a2 2 0 0 1-2 2h-5v-8h-6v8H5a2 2 0 0 1-2-2z" fill="#1f1f1f"/></svg>
+      Home
+    </div>
+    <div class="nitem">
+      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M4 9h18l-2.5 13a2 2 0 0 1-2 1.7H8.5A2 2 0 0 1 6.5 22z" fill="none" stroke="#4c4c4c" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9l4-5 4 5" fill="none" stroke="#4c4c4c" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Order Again
+    </div>
+    <div class="nitem">
+      <svg width="26" height="26" viewBox="0 0 26 26"><g fill="none" stroke="#4c4c4c" stroke-width="1.8"><circle cx="7" cy="7" r="4"/><circle cx="19" cy="7" r="4"/><circle cx="7" cy="19" r="4"/><circle cx="19" cy="19" r="4"/></g></svg>
+      Categories
+    </div>
+    <div class="nitem">
+      <svg width="26" height="26" viewBox="0 0 26 26"><g fill="none" stroke="#4c4c4c" stroke-width="1.8" stroke-linejoin="round"><rect x="6" y="3" width="14" height="9" rx="2"/><rect x="3" y="10" width="20" height="8" rx="2"/><rect x="7" y="16" width="12" height="7"/></g></svg>
+      Print
+    </div>
+    <div class="zomato"><button class="zomatoBtn">zomato</button></div>
+  </div>
+</div>
+
+<script>
+const ART = {
+  wreath: `<div class="artWreath"><div class="wreathRing"></div></div>`,
+  mehendi: `<div class="artMehendi">
+    <div class="hand" style="left:6px;transform:rotate(-8deg)"><div class="mandala" style="top:16px;left:8px"></div></div>
+    <div class="hand" style="right:6px;transform:rotate(8deg)"><div class="mandala" style="top:16px;left:8px"></div></div></div>`,
+  pink: `<div class="artPink"><div class="glitter"></div><div class="stick"></div>
+    <div class="stick2" style="right:44px;height:100px"></div>
+    <div class="pinkBox"><div class="lips"><span>FREE 6 PCS</span><b>SHRîNGAAR</b><span>FESTIVE BEAUTY SET</span></div></div></div>`,
+  bokeh: `<div class="artBokeh"></div>`
+};
+
+const PRODUCTS = [
+  {id:1, cat:'top', art:'wreath', pcs:'2 pcs', price:79, name:'White Gajra Wreath'},
+  {id:2, cat:'top', art:'mehendi', pcs:'1 pc', price:89, name:'Bridal Mehendi Session'},
+  {id:3, cat:'top', art:'pink', pcs:'6 pcs', price:599, name:'Shringaar Festive Set', tag:'Top Rated', ad:true, free:'6'},
+  {id:4, cat:'top', art:'bokeh', pcs:'10 pcs', price:149, name:'Diya Tea Lights'},
+  {id:5, cat:'top', art:'emoji', e:'🪔', c:['#f8e3c0','#e8c37e'], pcs:'4 pcs', price:299, name:'Brass Diya Set'},
+  {id:6, cat:'diwali', art:'emoji', e:'🍬', c:['#fbe3ef','#f3c7dc'], pcs:'250 g', price:199, name:'Kaju Katli Gift Box', tag:'Bestseller'},
+  {id:7, cat:'diwali', art:'emoji', e:'🪔', c:['#fdecc8','#f7d780'], pcs:'1 pc', price:149, name:'Marigold Toran'},
+  {id:8, cat:'diwali', art:'emoji', e:'🍬', c:['#fbe8d8','#f3cf9f'], pcs:'500 g', price:349, name:'Dry Fruit Thali'},
+  {id:9, cat:'party', art:'emoji', e:'🎉', c:['#e3ecfb','#c9d9f5'], pcs:'6 pcs', price:99, name:'Party Poppers'},
+  {id:10, cat:'party', art:'emoji', e:'🥤', c:['#fdecd2','#f7d9a4'], pcs:'2 L', price:120, name:'Cola Party Pack'},
+  {id:11, cat:'party', art:'emoji', e:'🃏', c:['#eaf0e2','#d3e2c0'], pcs:'1 pc', price:149, name:'Card Games'},
+  {id:12, cat:'elec', art:'emoji', e:'🎧', c:['#e8e6f5','#cdc9e8'], pcs:'1 pc', price:699, name:'Bass Buds Pro'},
+  {id:13, cat:'elec', art:'emoji', e:'🔌', c:['#e4f0e4','#cbe2cb'], pcs:'1 pc', price:249, name:'Fast USB-C Cable'},
+  {id:14, cat:'beauty', art:'emoji', e:'🧖‍♀️', c:['#fbe8ee','#f3cdd9'], pcs:'2 pcs', price:199, name:'Blush Sheet Mask', tag:'B1G1'},
+  {id:15, cat:'beauty', art:'emoji', e:'💄', c:['#fbe2ea','#f1c4d2'], pcs:'1 pc', price:349, name:'Velvet Red Lipstick'},
+  {id:16, cat:'gifts', art:'emoji', e:'🎁', c:['#fbe2e2','#f2c4c4'], pcs:'1 pc', price:499, name:'Choco Hamper'},
+  {id:17, cat:'gifts', art:'emoji', e:'💐', c:['#fbe4ee','#efc6d8'], pcs:'1 pc', price:299, name:'Red Rose Bouquet'},
+  {id:18, cat:'gifts', art:'emoji', e:'🫖', c:['#fdf0e0','#f5dcb8'], pcs:'1 pc', price:699, name:'Premium Sargi Thali'},
+  {id:19, cat:'mehendi', art:'emoji', e:'🌿', c:['#e2f2dd','#c6e6bd'], pcs:'6 pcs', price:120, name:'DIY Mehendi Cones'},
+  {id:20, cat:'mehendi', art:'emoji', e:'💍', c:['#fde7ef','#f6cfe3'], pcs:'1 set', price:249, name:'Bridal Bangles'},
+  {id:21, cat:'99', art:'emoji', e:'🕯️', c:['#fdf3d0','#f5df94'], pcs:'4 pcs', price:99, name:'Festive Candles'},
+  {id:22, cat:'99', art:'emoji', e:'🎊', c:['#e8f0fd','#ccd9f2'], pcs:'1 pc', price:99, name:'Decor Streamers'},
+  {id:23, cat:'99', art:'emoji', e:'🪥', c:['#eefae2','#d6eecd'], pcs:'3 pcs', price:99, name:'Henna Applicators'}
+];
+
+const CHIP_CATS = ['top','diwali','party','elec','beauty','gifts'];
+const TAB_CATS = ['top','mehendi','gifts','99'];
+let cart = {};
+let currentFilter = 'top';
+
+function artHtml(p){
+  const inner = p.art==='emoji'
+    ? `<span>${p.e}</span>`
+    : ART[p.art];
+  const cls = p.art==='emoji' ? 'pimg emoji' : 'pimg';
+  const bg  = p.art==='emoji' ? `background:radial-gradient(circle at 50% 38%, ${p.c[0]}, ${p.c[1]})` : '';
+  return `<div class="${cls}" style="${bg}">
+      ${inner}
+      ${p.tag==='Top Rated' ? '<div class="topRated">Top Rated</div>' : ''}
+      ${p.tag && p.tag!=='Top Rated' ? `<div class="topRated" style="background:#fdd8ec;color:#8a1044">${p.tag}</div>` : ''}
+      ${p.free ? `<span class="freeBadge">free<b>${p.free}</b></span>` : ''}
+      ${p.ad ? '<span class="adTag">Ad</span>' : ''}
+      <span class="fav" onclick="toggleFav(this)"><svg viewBox="0 0 24 22"><path d="M12 19.6s-7.8-4.9-10-8.6C.6 8.5 2 4.9 5.2 3.9c2.1-.7 4.3.2 5.4 1.9.6 1 2.2 1 2.8 0 1.1-1.7 3.3-2.6 5.4-1.9 3.2 1 4.6 4.6 3.2 7.1-2.2 3.7-10 8.6-10 8.6z" fill="none" stroke="currentColor" stroke-width="1.9"/></svg></span>
+      <div class="dots"><i class="on"></i><i></i><i></i></div>
+    </div>`;
+}
+
+function renderProducts(cat){
+  currentFilter = cat;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = PRODUCTS.filter(p=>p.cat===cat).map(p=>`
+    <div class="pcard" data-id="${p.id}">
+      ${artHtml(p)}
+      <div class="pbar"><span>${p.pcs}</span>
+        <button class="addBtn" data-id="${p.id}" onclick="addProduct(this)">ADD</button>
+        <div class="qtyBox" style="display:none"><button onclick="subProduct(${p.id})">−</button><span class="q">0</span><button onclick="incProduct(${p.id})">+</button></div>
+      </div>
+    </div>`).join('');
+  grid.querySelectorAll('.pcard').forEach(function(cardEl){
+    syncQty(+cardEl.dataset.id);
+  });
+  grid.querySelectorAll('.wreathRing').forEach(buildWreath);
+}
+
+function buildWreath(ring){
+  ring.innerHTML='';
+  for(let i=0;i<14;i++){
+    const a=i/14*Math.PI*2;
+    const s=document.createElement('i');
+    s.style.left=(60+Math.cos(a)*52-11)+'px';
+    s.style.top=(60+Math.sin(a)*52-11)+'px';
+    s.style.transform='rotate('+(a*57)+"deg)";
+    ring.appendChild(s);
+  }
+}
+
+function syncQty(id){
+  const q = cart[id]||0;
+  document.querySelectorAll(`.pcard[data-id="${id}"]`).forEach(function(card){
+    const addB=card.querySelector('.addBtn'), box=card.querySelector('.qtyBox');
+    if(!addB||!box)return;
+    box.querySelector('.q').textContent=q;
+    if(q>0){addB.style.display='none';box.style.display='flex'}
+    else{box.style.display='none';addB.style.display='block'}
+  });
+}
+
+function addProduct(btn){
+  const id=+btn.dataset.id;
+  cart[id]=(cart[id]||0)+1;
+  syncQty(id);updateCart();toast('Added to cart');
+}
+function subProduct(id){ if(cart[id]){cart[id]--; if(!cart[id])delete cart[id]; syncQty(id);updateCart();} }
+function incProduct(id){ cart[id]++; syncQty(id);updateCart(); }
+
+function updateCart(){
+  const ids=Object.keys(cart);
+  const count=ids.reduce((a,k)=>a+cart[k],0);
+  const sum=Object.keys(cart).reduce((a,k)=>{const p=PRODUCTS.find(x=>x.id==k);return a+(p?p.price*cart[k]:0)},0);
+  const cta=document.getElementById('cartCta');
+  if(count===0){cta.style.display='none';return}
+  cta.style.display='flex';
+  document.getElementById('cartCount').textContent=count+(count===1?' item':' items');
+  document.getElementById('cartSub').textContent='Total ₹'+sum;
+}
+function checkout(){
+  cart={};
+  PRODUCTS.forEach(function(p){syncQty(p.id)});
+  updateCart();toast('Order placed! Arriving in 9 minutes 🎉');
+}
+
+function toast(msg){
+  const t=document.getElementById('toastbar');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1900);
+}
+
+function toggleFav(el){el.classList.toggle('on')}
+
+/* category chips -> filter */
+const catsEl=document.getElementById('cats');
+document.querySelectorAll('.cat').forEach(function(c,i){c.dataset.cat=CHIP_CATS[i]||'top'});
+catsEl.addEventListener('click',function(e){
+  var c=e.target.closest('.cat');if(!c)return;
+  this.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));c.classList.add('active');
+  renderProducts(c.dataset.cat);
+  document.getElementById('grid').scrollIntoView({behavior:'smooth',block:'end'});
+});
+document.getElementById('tabs').addEventListener('click',function(e){
+  var t=e.target.closest('.tab');if(!t)return;
+  var idx=[...this.querySelectorAll('.tab')].indexOf(t);
+  this.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');
+  renderProducts(TAB_CATS[idx]);
+});
+
+/* bogo autoplay */
+let bogoI=0;const bogoSlider=document.getElementById('bogoSlider');
+function bogoGo(i){
+  bogoI=(i+3)%3;
+  bogoSlider.style.transform='translateX(-'+(bogoI*100)+'%)';
+  document.querySelectorAll('#bogoDots i').forEach((d,k)=>d.classList.toggle('on',k===bogoI));
+}
+let bogoT=setInterval(()=>bogoGo(bogoI+1),3500);
+document.getElementById('bogoPrev').onclick=()=>bogoGo(bogoI-1);
+document.querySelectorAll('#bogoDots i').forEach((d,k)=>d.onclick=()=>bogoGo(k));
+
+/* search suggestions */
+const suggest=document.getElementById('suggest');
+document.getElementById('searchInput').addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  if(q.length<1){suggest.style.display='none';return}
+  const hits=PRODUCTS.filter(p=>p.name.toLowerCase().includes(q)).slice(0,6);
+  suggest.innerHTML=hits.length?hits.map(p=>`
+    <div class="sItem" onclick="quickAdd(${p.id})">
+      <span class="sEmoji">${p.art==='emoji'?p.e:'🛍️'}</span>
+      <div class="sName"><b>${p.name}</b><small>₹${p.price} · ${p.pcs}</small></div>
+      <button class="sPlus">+</button>
+    </div>`).join('')
+    :'<div class="sEmpty">No festive finds for "'+q+'" — try "diya" or "mehendi"</div>';
+  suggest.style.display='block';
+});
+document.addEventListener('click',function(e){
+  if(!suggest.contains(e.target)&&e.target.id!=='searchInput')suggest.style.display='none';
+});
+function quickAdd(id){
+  cart[id]=(cart[id]||0)+1;syncQty(id);updateCart();
+  const p=PRODUCTS.find(x=>x.id===id);
+  toast(p.name+' added · ₹'+p.price);
+  suggest.style.display='none';
+  renderProducts(currentFilter);
+}
+
+/* keep current filter's cart quantities visible */
+function refreshAfterFilter(){PRODUCTS.forEach(function(p){syncQty(p.id)})}
+updateCart();
+renderProducts('top');
+</script>
+</body>
+</html>
